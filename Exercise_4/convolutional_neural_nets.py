@@ -33,7 +33,7 @@ log_root= '/tmp/tensorboard_logs'
 # In[ ]:
 
 
-get_ipython().run_line_magic('matplotlib', 'notebook')
+#get_ipython().run_line_magic('matplotlib', 'notebook')
 import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = ''
 import datetime
