@@ -27,7 +27,7 @@
 # In[ ]:
 
 
-log_root= '/tmp/tensorboard_logs'
+log_root= 'D:\\tmp\\tensorboard_logs'
 
 
 # In[ ]:
@@ -50,6 +50,8 @@ import tensorflow.keras.optimizers as optimizers
 import tensorflow.keras.callbacks as callbacks
 import tensorflow.keras.initializers as initializers
 import tensorflow.keras.preprocessing.image as kerasimage
+from tensorflow.python.keras.callbacks import TensorBoard
+from time import time
 
 def plot_multiple(images, titles=None, colormap='gray',
                   max_columns=np.inf, imwidth=4, imheight=4, share_axes=False):
@@ -98,6 +100,7 @@ def plot_multiple(images, titles=None, colormap='gray',
 
 dataset = tf.keras.datasets.cifar10
 (im_train, y_train),(im_test, y_test) = dataset.load_data()
+print("data load ok")
 # Normalize to 0-1 range and subtract mean of training pixels
 im_train = im_train / 255
 im_test = im_test / 255
@@ -159,6 +162,8 @@ softmax_regression = models.Sequential([
     layers.Dense(10, activation='softmax')],
     name='linear')
 
+tensorboard = TensorBoard(log_dir=log_root.format(time()))
+
 def train_model(model, batch_size=128, n_epochs=30, optimizer=optimizers.SGD,
                 learning_rate=1e-2):
     opt = optimizer(lr=learning_rate)
@@ -168,10 +173,11 @@ def train_model(model, batch_size=128, n_epochs=30, optimizer=optimizers.SGD,
     
     timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     logdir = os.path.join(log_root, f'{model.name}_{timestamp}')
-    tensorboard_callback = callbacks.TensorBoard(logdir, histogram_freq=1)
+    #tensorboard_callback = callbacks.TensorBoard(logdir, histogram_freq=1)
+    tensorboard = TensorBoard(log_dir=log_root.format(time()))
     model.fit(x=x_train, y=y_train, verbose=1, epochs=n_epochs, 
               validation_data=(x_test, y_test), batch_size=batch_size,
-              callbacks=[tensorboard_callback])
+              callbacks=[tensorboard])
 
 train_model(softmax_regression, optimizer=optimizers.SGD, learning_rate=1e-2)
 
