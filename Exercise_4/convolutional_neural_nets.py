@@ -50,8 +50,8 @@ import tensorflow.keras.optimizers as optimizers
 import tensorflow.keras.callbacks as callbacks
 import tensorflow.keras.initializers as initializers
 import tensorflow.keras.preprocessing.image as kerasimage
-from tensorflow.python.keras.callbacks import TensorBoard
-from time import time
+# from tensorflow.python.keras.callbacks import TensorBoard
+# from time import time
 
 def plot_multiple(images, titles=None, colormap='gray',
                   max_columns=np.inf, imwidth=4, imheight=4, share_axes=False):
@@ -162,8 +162,6 @@ softmax_regression = models.Sequential([
     layers.Dense(10, activation='softmax')],
     name='linear')
 
-tensorboard = TensorBoard(log_dir=log_root.format(time()))
-
 def train_model(model, batch_size=128, n_epochs=30, optimizer=optimizers.SGD,
                 learning_rate=1e-2):
     opt = optimizer(lr=learning_rate)
@@ -173,13 +171,13 @@ def train_model(model, batch_size=128, n_epochs=30, optimizer=optimizers.SGD,
     
     timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     logdir = os.path.join(log_root, f'{model.name}_{timestamp}')
-    #tensorboard_callback = callbacks.TensorBoard(logdir, histogram_freq=1)
-    tensorboard = TensorBoard(log_dir=log_root.format(time()))
+    tensorboard_callback = callbacks.TensorBoard(logdir, histogram_freq=1)
+    # tensorboard = TensorBoard(log_dir=logdir.format(time()))
     model.fit(x=x_train, y=y_train, verbose=1, epochs=n_epochs, 
               validation_data=(x_test, y_test), batch_size=batch_size,
-              callbacks=[tensorboard])
+              callbacks=[tensorboard_callback])
 
-train_model(softmax_regression, optimizer=optimizers.SGD, learning_rate=1e-2)
+# train_model(softmax_regression, optimizer=optimizers.SGD, learning_rate=1e-2)
 
 
 # (Jupyter Notebook Tip: After you're done training, you can collapse or hide the output by clicking or double clicking the area directly to the left of the output.)
@@ -201,23 +199,77 @@ softmax_regression = models.Sequential([
     layers.Flatten(input_shape=image_shape),
     layers.Dense(10, activation='softmax')],
     name='linear')
-train_model(softmax_regression, optimizer=optimizers.Adam, n_epochs=30,
-            learning_rate=2e-4)
+# train_model(softmax_regression, optimizer=optimizers.Adam, n_epochs=30,
+#             learning_rate=2e-4)
 
 
+# def dense(x, weights, biases):
+#     # YOUR CODE HERE
+#     result = np.matmul(weights.T, x) + biases
+#
+#     return result
+#
+#
+# def relu(x):
+#     # YOUR CODE HERE
+#     # print(x[np.where(x <= 0)])
+#     x = np.where(x <= 0, 0, x)
+#     return x
+#
+#
+# def softmax(x):
+#     # YOUR CODE HERE
+#     softmax = np.exp(x) / np.sum(np.exp(x))
+#     return softmax
+#
+# def my_predict_slp(x, W3, b3):
+#     # x = conv3x3_same(x, W1, b1)
+#     # x = relu(x)
+#     # x = maxpool2x2(x)
+#     # x = conv3x3_same(x, W2, b2)
+#     # x = relu(x)
+#     # x = maxpool2x2(x)
+#     x = x.reshape(-1)
+#     x = dense(x, W3, b3)
+#     x = softmax(x)
+#     return x
+#
+# W, b = softmax_regression.layers[1].get_weights()
+#
+# i_test = 12
+# inp = x_test[i_test]
+# my_pred = my_predict_slp(inp, W, b)
+# # prob1.append(my_predict_cnn(inp, W1, b1, W2, b2, W3, b3))
+# keras_pred = softmax_regression.predict(inp[np.newaxis])[0]
+# # prob2.append(cnn.predict(inp[np.newaxis])[0])
+# if np.mean((my_pred-keras_pred)**2) > 1e-10:
+#     print('Something isn\'t right! Keras gives different'
+#           'results than my_predict_slp!')
+#     print("difference:")
+#     print(np.mean((my_pred-keras_pred)**2))
+# else:
+#     print('Congratulations, you got correct results!')
+#
+# i_maxpred = np.argmax(my_pred)
+# # i_maxpred = np.argmax(keras_prob)
+# plot_multiple([im_test[i_test]],
+#               [f'Pred: {labels[i_maxpred]}, {my_pred[i_maxpred]:.1%}'],
+#               # [f'Pred: {labels[i_maxpred]}, {keras_prob[i_maxpred]:.1%}'],
+#               imheight=2)
+# plt.show()
 # The learned weights $W$ can be interpreted as templates. Why is this so? Do they look as you would expect?
 
 # In[ ]:
 
 
-W, b = softmax_regression.layers[1].get_weights()
-templates = W.reshape(32,32,3,10).transpose(3,0,1,2)
-mini = np.min(templates, axis=(1,2,3), keepdims=True)
-maxi = np.max(templates, axis=(1,2,3), keepdims=True)
-rescaled_templates = (templates - mini)/ (maxi-mini)
-plot_multiple(rescaled_templates, labels, max_columns=5,
-              imwidth=1, imheight=1)
-
+# W, b = softmax_regression.layers[1].get_weights()
+# templates = W.reshape(32,32,3,10).transpose(3,0,1,2)
+# mini = np.min(templates, axis=(1,2,3), keepdims=True)
+# maxi = np.max(templates, axis=(1,2,3), keepdims=True)
+# rescaled_templates = (templates - mini)/ (maxi-mini)
+# plot_multiple(rescaled_templates, labels, max_columns=5,
+#               imwidth=1, imheight=1)
+# plt.show()
 
 # ## Multi-Layer Perceptron
 # 
@@ -236,7 +288,7 @@ tanh_mlp = models.Sequential([
     layers.Dense(10, activation='softmax')],
     name='tanh_mlp')
 
-train_model(tanh_mlp, optimizer=optimizers.Adam, learning_rate=2e-4)
+# train_model(tanh_mlp, optimizer=optimizers.Adam, learning_rate=2e-4)
 
 
 # ## ReLU
@@ -255,8 +307,65 @@ relu_mlp = models.Sequential([
     layers.Dense(512, activation='relu', kernel_initializer='he_normal'),
     layers.Dense(10, activation='softmax')],
     name='relu_mlp')
-train_model(relu_mlp, optimizer=optimizers.Adam, learning_rate=2e-4)
+# train_model(relu_mlp, optimizer=optimizers.Adam, learning_rate=2e-4)
 
+# def dense(x, weights, biases):
+#     # YOUR CODE HERE
+#     result = np.matmul(weights.T, x) + biases
+#
+#     return result
+#
+#
+# def relu(x):
+#     # YOUR CODE HERE
+#     # print(x[np.where(x <= 0)])
+#     x = np.where(x <= 0, 0, x)
+#     return x
+#
+#
+# def softmax(x):
+#     # YOUR CODE HERE
+#     softmax = np.exp(x) / np.sum(np.exp(x))
+#     return softmax
+#
+# def my_predict_relumlp(x, W1, b1, W2, b2):
+#     # x = conv3x3_same(x, W1, b1)
+#     # x = relu(x)
+#     # x = maxpool2x2(x)
+#     # x = conv3x3_same(x, W2, b2)
+#     # x = relu(x)
+#     # x = maxpool2x2(x)
+#     x = x.reshape(-1)
+#     x = dense(x, W1, b1)
+#     x = relu(x)
+#     x = dense(x, W2, b2)
+#     x = softmax(x)
+#     return x
+#
+# W1, b1 = relu_mlp.layers[1].get_weights()
+# W2, b2 = relu_mlp.layers[2].get_weights()
+#
+# i_test = 12
+# inp = x_test[i_test]
+# my_pred = my_predict_relumlp(inp, W1, b1, W2, b2)
+# # prob1.append(my_predict_cnn(inp, W1, b1, W2, b2, W3, b3))
+# keras_pred = relu_mlp.predict(inp[np.newaxis])[0]
+# # prob2.append(cnn.predict(inp[np.newaxis])[0])
+# if np.mean((my_pred-keras_pred)**2) > 1e-10:
+#     print('Something isn\'t right! Keras gives different'
+#           'results than my_predict_slp!')
+#     print("difference:")
+#     print(np.mean((my_pred-keras_pred)**2))
+# else:
+#     print('Congratulations, you got correct results!')
+#
+# i_maxpred = np.argmax(my_pred)
+# # i_maxpred = np.argmax(keras_prob)
+# plot_multiple([im_test[i_test]],
+#               [f'Pred: {labels[i_maxpred]}, {my_pred[i_maxpred]:.1%}'],
+#               # [f'Pred: {labels[i_maxpred]}, {keras_prob[i_maxpred]:.1%}'],
+#               imheight=2)
+# plt.show()
 
 # ## A Simple Convolutional Neural Network
 # 
@@ -313,7 +422,10 @@ train_model(cnn, optimizer=optimizers.Adam, learning_rate=1e-3, n_epochs=15)
 # (Implementation of the backward pass does not fit within this exercise, but the "Machine Learning" course of our chair does include such exercises.)
 
 # In[ ]:
-
+def zero_padding(input, shape):
+    pad_y, pad_x = np.subtract(shape[:2], input.shape[:2])
+    res = np.pad(input, [(pad_y // 2, pad_y // 2), (pad_x // 2, pad_x // 2), (0, 0)], "constant")
+    return res
 
 def conv3x3_same(x, weights, biases):
     """Convolutional layer with filter size 3x3 and 'same' padding.
@@ -323,7 +435,19 @@ def conv3x3_same(x, weights, biases):
     Return the output of the 3x3 conv (without activation)
     """
     # YOUR CODE HERE
-    raise NotImplementedError()
+    x_h, x_w = x.shape[:2]
+    ker_h, ker_w, depth_in, depth_out = weights.shape
+    step_x = x_w - ker_w + 1
+    step_y = x_h - ker_h + 1
+    tmp = np.zeros((step_y, step_x, depth_out))
+
+    w = weights.reshape(-1, depth_out).T
+    for i in range(step_y):
+        for j in range(step_x):
+            patch = x[i:i + ker_h, j:j + ker_w].reshape(-1)  # 3 * 3 * depth_in
+            tmp[i,j] = np.matmul(w, patch) + biases
+
+    result = zero_padding(tmp, x.shape)
     return result
 
 def maxpool2x2(x):
@@ -331,20 +455,33 @@ def maxpool2x2(x):
     `x` is a numpy array of shape [height, width, n_features]
     """
     # YOUR CODE HERE
-    raise NotImplementedError()
+    x_h, x_w, x_dep = x.shape
+    win_size = 2
+    stride = 2
+    step_y = (x_h - win_size) // stride + 1
+    step_x = (x_w - win_size) // stride + 1
+    tmp = np.zeros((step_y, step_x, x_dep))
+    for i in range(step_y):
+        for j in range(step_x):
+            tmp[i, j] = np.max(x[stride * i:stride * i + win_size, stride * j:stride * j + win_size], axis=(0, 1))
+    result = tmp
     return result
 
 def dense(x, weights, biases):
     # YOUR CODE HERE
-    raise NotImplementedError()
+    result = np.matmul(weights.T, x) + biases
+
+    return result
     
 def relu(x):
     # YOUR CODE HERE
-    raise NotImplementedError()
+    x = np.where(x <= 0, 0, x)
+    return x
 
 def softmax(x):
     # YOUR CODE HERE
-    raise NotImplementedError()
+    softmax = np.exp(x) / np.sum(np.exp(x))
+    return softmax
 
 def my_predict_cnn(x, W1, b1, W2, b2, W3, b3):
     x = conv3x3_same(x, W1, b1)
@@ -362,20 +499,35 @@ W1, b1 = cnn.layers[0].get_weights()
 W2, b2 = cnn.layers[2].get_weights()
 W3, b3 = cnn.layers[5].get_weights()
 
+from random import randint
 i_test = 12
-inp = x_test[i_test]
-my_prob = my_predict_cnn(inp, W1, b1, W2, b2, W3, b3)
-keras_prob = cnn.predict(inp[np.newaxis])[0]
-if np.mean((my_prob-keras_prob)**2) > 1e-10:
-    print('Something isn\'t right! Keras gives different'
-          'results than my_predict_cnn!')
-else:
-    print('Congratulations, you got correct results!')
-    
-i_maxpred = np.argmax(my_prob)
-plot_multiple([im_test[i_test]], 
-              [f'Pred: {labels[i_maxpred]}, {my_prob[i_maxpred]:.1%}'],
-              imheight=2)
+prob1 = []
+prob2 = []
+for i in range(10):
+    ran = randint(0,1000)
+    inp = x_test[i_test + ran]
+    my_prob = my_predict_cnn(inp, W1, b1, W2, b2, W3, b3)
+    prob1.append(my_predict_cnn(inp, W1, b1, W2, b2, W3, b3))
+    keras_prob = cnn.predict(inp[np.newaxis])[0]
+    prob2.append(cnn.predict(inp[np.newaxis])[0])
+    if np.mean((my_prob-keras_prob)**2) > 1e-10:
+        print('Something isn\'t right! Keras gives different'
+              'results than my_predict_cnn!')
+        print("difference:")
+        print(np.mean((my_prob-keras_prob)**2))
+    else:
+        print('Congratulations, you got correct results!')
+
+    i_maxpred = np.argmax(my_prob)
+    # i_maxpred = np.argmax(keras_prob)
+    plot_multiple([im_test[i_test + ran]],
+                  [f'Pred: {labels[i_maxpred]}, {my_prob[i_maxpred]:.1%}'],
+                  # [f'Pred: {labels[i_maxpred]}, {keras_prob[i_maxpred]:.1%}'],
+                  imheight=2)
+    plt.show()
+prob1 = np.array(prob1)
+prob2 = np.array(prob2)
+compare = np.append(prob1, prob2, axis=0)
 
 
 # ## Batch Normalization
