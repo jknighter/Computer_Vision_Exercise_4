@@ -403,7 +403,7 @@ cnn = models.Sequential([
     layers.Dense(10, activation='softmax')],
     name='cnn')
 
-train_model(cnn, optimizer=optimizers.Adam, learning_rate=1e-3, n_epochs=15)
+# train_model(cnn, optimizer=optimizers.Adam, learning_rate=1e-3, n_epochs=15)
 
 
 # **Q:** Does it improve the result? Does it run faster than the MLP? How many parameters does this model have?
@@ -470,7 +470,6 @@ def maxpool2x2(x):
 def dense(x, weights, biases):
     # YOUR CODE HERE
     result = np.matmul(weights.T, x) + biases
-
     return result
     
 def relu(x):
@@ -495,39 +494,39 @@ def my_predict_cnn(x, W1, b1, W2, b2, W3, b3):
     x = softmax(x)
     return x
 
-W1, b1 = cnn.layers[0].get_weights()
-W2, b2 = cnn.layers[2].get_weights()
-W3, b3 = cnn.layers[5].get_weights()
-
-from random import randint
-i_test = 12
-prob1 = []
-prob2 = []
-for i in range(10):
-    ran = randint(0,1000)
-    inp = x_test[i_test + ran]
-    my_prob = my_predict_cnn(inp, W1, b1, W2, b2, W3, b3)
-    prob1.append(my_predict_cnn(inp, W1, b1, W2, b2, W3, b3))
-    keras_prob = cnn.predict(inp[np.newaxis])[0]
-    prob2.append(cnn.predict(inp[np.newaxis])[0])
-    if np.mean((my_prob-keras_prob)**2) > 1e-10:
-        print('Something isn\'t right! Keras gives different'
-              'results than my_predict_cnn!')
-        print("difference:")
-        print(np.mean((my_prob-keras_prob)**2))
-    else:
-        print('Congratulations, you got correct results!')
-
-    i_maxpred = np.argmax(my_prob)
-    # i_maxpred = np.argmax(keras_prob)
-    plot_multiple([im_test[i_test + ran]],
-                  [f'Pred: {labels[i_maxpred]}, {my_prob[i_maxpred]:.1%}'],
-                  # [f'Pred: {labels[i_maxpred]}, {keras_prob[i_maxpred]:.1%}'],
-                  imheight=2)
-    plt.show()
-prob1 = np.array(prob1)
-prob2 = np.array(prob2)
-compare = np.append(prob1, prob2, axis=0)
+# W1, b1 = cnn.layers[0].get_weights()
+# W2, b2 = cnn.layers[2].get_weights()
+# W3, b3 = cnn.layers[5].get_weights()
+#
+# from random import randint
+# i_test = 12
+# prob1 = []
+# prob2 = []
+# for i in range(10):
+#     ran = randint(0,1000)
+#     inp = x_test[i_test + ran]
+#     my_prob = my_predict_cnn(inp, W1, b1, W2, b2, W3, b3)
+#     prob1.append(my_predict_cnn(inp, W1, b1, W2, b2, W3, b3))
+#     keras_prob = cnn.predict(inp[np.newaxis])[0]
+#     prob2.append(cnn.predict(inp[np.newaxis])[0])
+#     if np.mean((my_prob-keras_prob)**2) > 1e-10:
+#         print('Something isn\'t right! Keras gives different'
+#               'results than my_predict_cnn!')
+#         print("difference:")
+#         print(np.mean((my_prob-keras_prob)**2))
+#     else:
+#         print('Congratulations, you got correct results!')
+#
+#     i_maxpred = np.argmax(my_prob)
+#     # i_maxpred = np.argmax(keras_prob)
+#     plot_multiple([im_test[i_test + ran]],
+#                   [f'Pred: {labels[i_maxpred]}, {my_prob[i_maxpred]:.1%}'],
+#                   # [f'Pred: {labels[i_maxpred]}, {keras_prob[i_maxpred]:.1%}'],
+#                   imheight=2)
+#     plt.show()
+# prob1 = np.array(prob1)
+# prob2 = np.array(prob2)
+# compare = np.append(prob1, prob2, axis=0)
 
 
 # ## Batch Normalization
@@ -564,10 +563,20 @@ compare = np.append(prob1, prob2, axis=0)
 cnn_batchnorm = ...
 
 # YOUR CODE HERE
-raise NotImplementedError()
+cnn_batchnorm = models.Sequential([
+    layers.Conv2D(filters=64, kernel_size=3, kernel_initializer="he_uniform", padding="same"),
+    layers.BatchNormalization(),
+    layers.Activation("relu"),
+    layers.MaxPooling2D(pool_size=2, strides=2),
+    layers.Conv2D(filters=64, kernel_size=3, kernel_initializer="he_uniform", padding="same"),
+    layers.BatchNormalization(),
+    layers.Activation("relu"),
+    layers.MaxPooling2D(pool_size=2, strides=2),
+    layers.Flatten(),
+    layers.Dense(10, activation="softmax")],
+    name="cnn_batchnorm")
 
-train_model(cnn_batchnorm, optimizer=optimizers.Adam,
-            learning_rate=1e-3, n_epochs=15)
+# train_model(cnn_batchnorm, optimizer=optimizers.Adam, learning_rate=1e-3, n_epochs=15)
 
 
 # ## Strided Convolutions
@@ -587,7 +596,18 @@ train_model(cnn_batchnorm, optimizer=optimizers.Adam,
 
 cnn_strides = ...
 # YOUR CODE HERE
-raise NotImplementedError()
+cnn_strides = models.Sequential([
+    layers.Conv2D(filters=64, kernel_size=3, strides=2, kernel_initializer="he_uniform", padding="same"),
+    layers.BatchNormalization(),
+    layers.Activation("relu"),
+    # layers.MaxPooling2D(pool_size=2, strides=2),
+    layers.Conv2D(filters=64, kernel_size=3, strides=2, kernel_initializer="he_uniform", padding="same"),
+    layers.BatchNormalization(),
+    layers.Activation("relu"),
+    # layers.MaxPooling2D(pool_size=2, strides=2),
+    layers.Flatten(),
+    layers.Dense(10, activation="softmax")],
+    name="cnn_batchnorm")
 
 train_model(cnn_strides, optimizer=optimizers.Adam,
             learning_rate=1e-3, n_epochs=15)
