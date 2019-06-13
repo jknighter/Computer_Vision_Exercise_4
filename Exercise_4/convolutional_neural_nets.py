@@ -609,8 +609,8 @@ cnn_strides = models.Sequential([
     layers.Dense(10, activation="softmax")],
     name="cnn_batchnorm")
 
-train_model(cnn_strides, optimizer=optimizers.Adam,
-            learning_rate=1e-3, n_epochs=15)
+# train_model(cnn_strides, optimizer=optimizers.Adam,
+#             learning_rate=1e-3, n_epochs=15)
 
 
 # ## Global Pooling
@@ -642,7 +642,7 @@ cnn_global_pool = models.Sequential([
     layers.Dense(10, activation='softmax')],
     name='cnn_strides')
 
-train_model(cnn_global_pool, optimizer=optimizers.Adam, learning_rate=1e-3)
+# train_model(cnn_global_pool, optimizer=optimizers.Adam, learning_rate=1e-3)
 
 
 # ## [BONUS] A More Complex Architecture: ResNet
@@ -755,7 +755,14 @@ def learning_rate_schedule(epoch):
     """
     
     # YOUR CODE HERE
-    raise NotImplementedError()
+    lr = 1e-3
+    if epoch <= 80 :
+        return lr
+    elif epoch <= 120 :
+        return lr / 10
+    elif epoch <= 150:
+        return lr / 100
+
 
 def train_with_lr_decay(model):
     model.compile(
@@ -775,7 +782,9 @@ def train_with_lr_decay(model):
         x_train, y_train, batch_size=128,
         validation_data=(x_test, y_test), epochs=150, verbose=1, 
         callbacks=[lr_scheduler, tensorboard_callback])
-    
+
+from keras.preprocessing.image import ImageDataGenerator
+
 def train_with_lr_decay_and_augmentation(model):
     model.compile(
         loss='sparse_categorical_crossentropy', metrics=['accuracy'],
@@ -790,8 +799,16 @@ def train_with_lr_decay_and_augmentation(model):
     tensorboard_callback = callbacks.TensorBoard(logdir, histogram_freq=1)
 
     # YOUR CODE HERE
-    raise NotImplementedError()
+    data_augmentation = ImageDataGenerator(width_shift_range=[-4, 4], horizontal_flip=True)
+    data_augmentation.fit(x_train)
+
+    model.fit_generator(
+        data_augmentation.flow(x_train, y_train, batch_size=128), steps_per_epoch=len(x_train) / 128,
+        validation_data=(x_test, y_test), epochs=150, verbose=1,
+        callbacks=[lr_scheduler, tensorboard_callback])
 
 resnet56 = resnet(56)
 train_with_lr_decay_and_augmentation(resnet56)
+# train_with_lr_decay(resnet56)
+
 
